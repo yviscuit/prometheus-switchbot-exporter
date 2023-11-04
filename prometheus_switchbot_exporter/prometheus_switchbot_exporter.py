@@ -40,8 +40,8 @@ def is_switchbot_thermometer(device: btle.ScanEntry):
     scan_data = get_scan_data(device)
     logging.debug("%s scan data: %s", device_str, json.dumps(scan_data, indent=4))
 
-    if scan_data.get("Complete 128b Services") != SWITCHBOT_SERVICE_ID:
-        logging.debug("%s service ID is not Swichbot Thermometer", device_str)
+    if scan_data.get("16b Service Data") is None:
+        logging.debug("%s service_data is not Switchbot Thermometer", device_str)
         return False
     
     if not len(scan_data.get("16b Service Data")) == 16:
@@ -58,8 +58,6 @@ def get_scan_data(device: btle.ScanEntry):
 
 def parse_device_data(device: btle.ScanEntry):
     service_data = get_scan_data(device).get("16b Service Data")
-    if not service_data.startswith("000d"):
-        raise ValueError(f"Malformed service data '{service_data}'")
 
     byte2 = int(service_data[8:10], 16)
     battery = byte2 & 127
